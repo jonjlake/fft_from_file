@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include "C:\\CPP\\fft\\fft.h"
 #include "C:\\CPP\\wav_reader\\wav_reader.h"
-
+#include "C:\\CPP\\wav_generator\\wav_generator.h"
 
 void print_ft_array_to_csv(char *filename, FourierData *fourier_arrays, long int num_channels)
 {
@@ -171,9 +171,11 @@ int main()
 //	char filename[128] = "C:\\Users\\PC\\Downloads\\WAV_Samples\\M1F1-int16-Afsp.wav";
 //	char filename[128] = "C:\\CPP\\wav_generator\\output_test.wav";
 //	char filename[128] = "C:\\CPP\\wav_generator\\440hz_880hz_5s.wav";
-	char filename[128] = "C:\\CPP\\wav_generator\\440hz_880hz_2sec_1chan.wav";
+//	char filename[128] = "C:\\CPP\\wav_generator\\440hz_880hz_2sec_1chan.wav";
+	char filename[128] = "C:\\CPP\\wav_generator\\A4_C5_2s1c.wav";
 //	fft_from_file(filename, true);
-	fft_filter_from_file(filename, 880);
+//	fft_filter_from_file(filename, 880);
+	fft_filter_from_file(filename, A4);
 
 	return 0;
 }
