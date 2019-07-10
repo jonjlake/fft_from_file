@@ -172,10 +172,11 @@ int main()
 //	char filename[128] = "C:\\CPP\\wav_generator\\output_test.wav";
 //	char filename[128] = "C:\\CPP\\wav_generator\\440hz_880hz_5s.wav";
 //	char filename[128] = "C:\\CPP\\wav_generator\\440hz_880hz_2sec_1chan.wav";
-	char filename[128] = "C:\\CPP\\wav_generator\\A4_C5_2s1c.wav";
-//	fft_from_file(filename, true);
+//	char filename[128] = "C:\\CPP\\wav_generator\\A4_C5_2s1c.wav";
+	char filename[128] = "C:\\CPP\\wav_generator\\C5_Ef5_G5_2s1c.wav";
+	fft_from_file(filename, true);
 //	fft_filter_from_file(filename, 880);
-	fft_filter_from_file(filename, A4);
+//	fft_filter_from_file(filename, A4);
 
 	return 0;
 }
