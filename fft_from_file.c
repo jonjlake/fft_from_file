@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdbool.h>
+#include <stdlib.h>
 #include "C:\\CPP\\fft\\fft.h"
 #include "C:\\CPP\\wav_reader\\wav_reader.h"
 #include "C:\\CPP\\wav_generator\\wav_generator.h"
@@ -13,32 +14,32 @@ int get_csv_column(FILE *fp, char *col_header)
 	int col_header_len = strlen(col_header);
 	int col_counter = 0;
 
-	printf("Length of column header \"%s\": %d\n", col_header, col_header_len);
+//	printf("Length of column header \"%s\": %d\n", col_header, col_header_len);
 
 	while ('\n' != (filechar = getc(fp)))
 	{
 		if (',' == filechar)
 		{
 			col_counter++;
-			printf("Increasing column to %d\n", col_counter);
+//			printf("Increasing column to %d\n", col_counter);
 			i = -1; // Reset comparison index
 			continue;
 		}
 		else if (' ' == filechar && -1 == i)
 		{
-			printf("Skipping leading space\n");
+//			printf("Skipping leading space\n");
 			continue; // Skip leading spaces
 		}
 		else if (filechar == col_header[++i])
 		{
-			printf("Matched char %c to index %d of col_header\n", filechar, i);
+//			printf("Matched char %c to index %d of col_header\n", filechar, i);
 //			i++;
 			if (i == (col_header_len - 1))
 				return col_counter;
 		}
 		else
 		{
-			printf("Mismatched char %c to col_header[%d]=%c\n", filechar, i, col_header[i]);
+//			printf("Mismatched char %c to col_header[%d]=%c\n", filechar, i, col_header[i]);
 			col_counter++;
 			i = -1;
 			while (',' != (filechar = getc(fp)))
@@ -61,6 +62,57 @@ int get_csv_column(FILE *fp, char *col_header)
 	return -1;
 }
 
+double get_next_value(FILE *fp, int col)
+{
+	int i;
+	int filechar;
+	char buf[256] = "";
+
+	/* Assume we're in the middle of the previous line */
+	while ('\n' != getc(fp));
+	for (i = 0; i < col; i++)
+	{
+//		printf("At column %d\n", i);
+		while (1)
+		{
+			filechar = getc(fp);
+//			printf("%c ", filechar);
+			if ('\n' == filechar || EOF == filechar)
+			{
+//				printf("Reached line-end or EOF\n");
+				return 0;
+			}
+			else if(',' == filechar)
+			{
+//				printf("Reached a comma\n");
+				break;
+			}
+		}
+	}
+
+//	i = 0;
+	for (i = 0; i < 255; i++)
+	{
+		while (' ' == (filechar = getc(fp))); // Kill leading spaces
+		if (',' == filechar || '\n' == filechar || EOF == filechar)
+		{
+//			printf("Terminating buffer\n");
+			buf[i] = '\0';
+			break;
+		}
+		else
+		{
+//			printf("Adding value %c to buf[%d]\n", filechar, i);
+			buf[i] = filechar;
+		}
+	}
+
+//	printf("Returning string %s\n", buf);
+//	return atof(buf);
+//	printf("Converted to %f\n", retval);
+	return atof(buf);
+}
+
 void read_array_from_csv(char *filename, char *col_header, double **array_values, int *num_values)
 {
 	FILE *fp = fopen(filename, "r");
@@ -77,6 +129,9 @@ void read_array_from_csv(char *filename, char *col_header, double **array_values
 	int col = get_csv_column(fp, col_header);
 
 	printf("Found header %s at column %d\n", col_header, col);
+
+	for (i = 0; i < 10; i++)
+		printf("Value %d: %f\n", i, get_next_value(fp, col));
 
 	fclose(fp);
 }
