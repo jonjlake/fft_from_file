@@ -205,7 +205,7 @@ void read_array_from_csv(char *filename, char *col_header, double **array_values
 		{
 			(*num_values)++;
 			add_link(&linked_list, value);
-//			printf("Got value %f\n", value);
+//			printf("Got value %f at row %d\n", value, i);
 		}
 	}
 
@@ -413,12 +413,23 @@ int main()
 //	fft_filter_from_file(filename, 880);
 //	fft_filter_from_file(filename, A4);
 
-	char filename[128] = "C:\\CPP\\fft_from_file\\FFT_IFFT_output.csv";
+//	char filename[128] = "C:\\CPP\\fft_from_file\\FFT_IFFT_output.csv";
+	char filename[128] = "C:\\Users\\PC\\Downloads\\sax_fft.csv";
 	char col_header[128] = "FT Mag^2";
 	double *array_values = NULL;
 	int num_values = 0;
+	double average = 0;
+	PeakList *peak_list = NULL;
+
 	read_array_from_csv(filename, col_header, &array_values, &num_values);
 
+	average = calculate_average(array_values, num_values);
+	printf("Using average threshold %f\n", average);
+
+	find_peaks_above_threshold(array_values, num_values, average, &peak_list);
+	print_peaks(peak_list, NULL); // Get a frequency array too
+
+	free(array_values);
 	return 0;
 }
 #endif
