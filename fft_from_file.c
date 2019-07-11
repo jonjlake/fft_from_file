@@ -3,6 +3,23 @@
 #include "C:\\CPP\\fft\\fft.h"
 #include "C:\\CPP\\wav_reader\\wav_reader.h"
 #include "C:\\CPP\\wav_generator\\wav_generator.h"
+#include "C:\\CPP\\signal_analyzer\\signal_analyzer.h"
+
+void read_array_from_csv(char *filename, char *col_header, double **array_values, int *num_values)
+{
+	FILE *fp = fopen(filename, "r");
+	int i = 0, j = 0;
+	int filechar;
+	while ('\n' != (filechar = getc(fp)))
+	{
+		printf("%c ", filechar);
+		i++;
+	}
+	printf("\n");
+	printf("File first line end at index %d\n", i);
+
+	fclose(fp);
+}
 
 void print_ft_array_to_csv(char *filename, FourierData *fourier_arrays, long int num_channels)
 {
@@ -59,6 +76,7 @@ void fft_from_file(char *filename, bool calculate_ift)
 {
 	WaveFile wavefile = { 0 };
 	FourierData *fourier_transforms;
+	PeakList **peak_lists = NULL;
 
 	int i;
 
@@ -96,6 +114,17 @@ void fft_from_file(char *filename, bool calculate_ift)
 	else
 	{
 		print_ft_array_to_csv("FFT_output.csv", fourier_transforms, wavefile.num_channels);
+	}
+
+	peak_lists = (PeakList **)calloc(wavefile.num_channels, sizeof(**peak_lists));
+	for (i = 0; i < wavefile.num_channels; i++)
+	{
+		double threshold = calculate_average(fourier_transforms[i].sample_power,
+				fourier_transforms[i].num_samples);
+		find_peaks_above_threshold(fourier_transforms[i].sample_power, fourier_transforms[i].num_samples,
+				threshold, &(peak_lists[i]));
+		printf("Peaks of channel %d\n", i);
+		print_peaks(peak_lists[i], fourier_transforms[i].sample_frequencies);
 	}
 
 	destroy_wavearrays(&wavefile);
@@ -166,6 +195,7 @@ void fft_filter_from_file(char *filename, double filter_frequency)
 		destroy_fourier_data_arrays(&fourier_transforms[i]);
 }
 
+#if 1
 int main()
 {
 //	char filename[128] = "C:\\Users\\PC\\Downloads\\WAV_Samples\\M1F1-int16-Afsp.wav";
@@ -173,10 +203,17 @@ int main()
 //	char filename[128] = "C:\\CPP\\wav_generator\\440hz_880hz_5s.wav";
 //	char filename[128] = "C:\\CPP\\wav_generator\\440hz_880hz_2sec_1chan.wav";
 //	char filename[128] = "C:\\CPP\\wav_generator\\A4_C5_2s1c.wav";
-	char filename[128] = "C:\\CPP\\wav_generator\\C5_Ef5_G5_2s1c.wav";
-	fft_from_file(filename, true);
+/*	char filename[128] = "C:\\CPP\\wav_generator\\C5_Ef5_G5_2s1c.wav";
+	fft_from_file(filename, true);*/
 //	fft_filter_from_file(filename, 880);
 //	fft_filter_from_file(filename, A4);
 
+	char filename[128] = "C:\\CPP\\fft_from_file\\FFT_IFFT_output.csv";
+	char col_header[128] = "FT Mag^2";
+	double *array_values = NULL;
+	int num_values = 0;
+	read_array_from_csv(filename, col_header, &array_values, &num_values);
+
 	return 0;
 }
+#endif
