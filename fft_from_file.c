@@ -62,11 +62,12 @@ int get_csv_column(FILE *fp, char *col_header)
 	return -1;
 }
 
-double get_next_value(FILE *fp, int col)
+double get_next_value(FILE *fp, int col, bool *val_retrieved)
 {
 	int i;
 	int filechar;
 	char buf[256] = "";
+	*val_retrieved = false;
 
 	/* Assume we're in the middle of the previous line */
 	while ('\n' != getc(fp));
@@ -98,6 +99,7 @@ double get_next_value(FILE *fp, int col)
 		{
 //			printf("Terminating buffer\n");
 			buf[i] = '\0';
+			*val_retrieved = true;
 			break;
 		}
 		else
@@ -118,6 +120,9 @@ void read_array_from_csv(char *filename, char *col_header, double **array_values
 	FILE *fp = fopen(filename, "r");
 	int i = 0, j = 0;
 	int filechar;
+	bool val_retrieved = false;
+	double value = 0;
+
 //	while ('\n' != (filechar = getc(fp)))
 //	{
 //		printf("%c ", filechar);
@@ -130,8 +135,22 @@ void read_array_from_csv(char *filename, char *col_header, double **array_values
 
 	printf("Found header %s at column %d\n", col_header, col);
 
-	for (i = 0; i < 10; i++)
-		printf("Value %d: %f\n", i, get_next_value(fp, col));
+//	for (i = 0; i < 10; i++)
+//		printf("Value %d: %f\n", i, get_next_value(fp, col));
+
+	i = 0;
+	while (1)
+	{
+		value = get_next_value(fp, col, &val_retrieved);
+		i++;	
+		if (!val_retrieved)
+		{
+			printf("Ended at value number %d\n", i);
+			break;
+		}
+//		else
+//			printf("Got value %f\n", value);
+	}
 
 	fclose(fp);
 }
