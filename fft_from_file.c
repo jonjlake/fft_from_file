@@ -115,6 +115,55 @@ double get_next_value(FILE *fp, int col, bool *val_retrieved)
 	return atof(buf);
 }
 
+typedef struct SimpleLink
+{
+	double value;
+	struct SimpleLink *next;
+} SimpleLink;
+
+void add_link(SimpleLink **linked_list, double value)
+{
+	SimpleLink *new_link = (SimpleLink *)calloc(1, sizeof(*new_link));
+	SimpleLink *lp = NULL;
+
+	new_link->value = value;
+	if (NULL == *linked_list)
+	{
+		*linked_list = new_link;
+	}
+	else
+	{
+		lp = *linked_list;
+		while (NULL != lp->next)
+		{
+			lp = lp->next;
+		}
+		lp->next = new_link;
+	}
+//	printf("New link value: %f\n", lp->next->value);
+}
+
+void print_links(SimpleLink *linked_list)
+{
+	SimpleLink *lp = linked_list;
+	while (NULL != lp)
+	{
+		printf("Link value %f\n", lp->value);
+		lp = lp->next;
+	}
+}
+
+void destroy_links(SimpleLink **linked_list)
+{
+	SimpleLink *lp = *linked_list;
+	while (lp != NULL)
+	{
+		*linked_list = lp->next;
+		free(lp);
+		lp = *linked_list;
+	}
+}
+
 void read_array_from_csv(char *filename, char *col_header, double **array_values, int *num_values)
 {
 	FILE *fp = fopen(filename, "r");
@@ -122,6 +171,10 @@ void read_array_from_csv(char *filename, char *col_header, double **array_values
 	int filechar;
 	bool val_retrieved = false;
 	double value = 0;
+	SimpleLink *linked_list = NULL;
+	SimpleLink *lp = NULL;
+
+	*num_values = 0;
 
 //	while ('\n' != (filechar = getc(fp)))
 //	{
@@ -148,11 +201,29 @@ void read_array_from_csv(char *filename, char *col_header, double **array_values
 			printf("Ended at value number %d\n", i);
 			break;
 		}
-//		else
+		else
+		{
+			(*num_values)++;
+			add_link(&linked_list, value);
 //			printf("Got value %f\n", value);
+		}
 	}
 
 	fclose(fp);
+
+	*array_values = (double *)calloc(*num_values, sizeof(**array_values));
+	lp = linked_list;
+	for (i = 0; i < *num_values; i++)
+	{
+//		printf("Assigning value %d\n", lp->value);
+		(*array_values)[i] = lp->value;
+		lp = lp->next;
+	}
+	printf("Assigned %d values\n", i);
+	
+//	print_links(linked_list);
+	printf("Last value: %f\n", (*array_values)[i-1]);
+	destroy_links(&linked_list);	
 }
 
 void print_ft_array_to_csv(char *filename, FourierData *fourier_arrays, long int num_channels)
