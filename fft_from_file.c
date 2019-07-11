@@ -5,18 +5,78 @@
 #include "C:\\CPP\\wav_generator\\wav_generator.h"
 #include "C:\\CPP\\signal_analyzer\\signal_analyzer.h"
 
+int get_csv_column(FILE *fp, char *col_header)
+{
+//	int col = -1;
+	int filechar;
+	int i = 0;
+	int col_header_len = strlen(col_header);
+	int col_counter = 0;
+
+	printf("Length of column header \"%s\": %d\n", col_header, col_header_len);
+
+	while ('\n' != (filechar = getc(fp)))
+	{
+		if (',' == filechar)
+		{
+			col_counter++;
+			printf("Increasing column to %d\n", col_counter);
+			i = -1; // Reset comparison index
+			continue;
+		}
+		else if (' ' == filechar && -1 == i)
+		{
+			printf("Skipping leading space\n");
+			continue; // Skip leading spaces
+		}
+		else if (filechar == col_header[++i])
+		{
+			printf("Matched char %c to index %d of col_header\n", filechar, i);
+//			i++;
+			if (i == (col_header_len - 1))
+				return col_counter;
+		}
+		else
+		{
+			printf("Mismatched char %c to col_header[%d]=%c\n", filechar, i, col_header[i]);
+			col_counter++;
+			i = -1;
+			while (',' != (filechar = getc(fp)))
+			{
+				if ('\n' == filechar)
+					return -1;
+			}
+		}
+
+		/* Does strlen start at 0 or 1? */
+//		if (i >= col_header_len || 
+//				(-1 != i && filechar != col_header[i]))
+//		{
+//			while (',' != getc(fp))
+//			{
+//				if ('\n'
+	}
+
+	printf("Reached end of line outside loop\n");
+	return -1;
+}
+
 void read_array_from_csv(char *filename, char *col_header, double **array_values, int *num_values)
 {
 	FILE *fp = fopen(filename, "r");
 	int i = 0, j = 0;
 	int filechar;
-	while ('\n' != (filechar = getc(fp)))
-	{
-		printf("%c ", filechar);
-		i++;
-	}
-	printf("\n");
-	printf("File first line end at index %d\n", i);
+//	while ('\n' != (filechar = getc(fp)))
+//	{
+//		printf("%c ", filechar);
+//		i++;
+//	}
+//	printf("\n");
+//	printf("File first line end at index %d\n", i);
+
+	int col = get_csv_column(fp, col_header);
+
+	printf("Found header %s at column %d\n", col_header, col);
 
 	fclose(fp);
 }
